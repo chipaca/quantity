@@ -5,6 +5,7 @@ import (
 	"math"
 )
 
+// An Amount is an adimensional (i.e. unitless) countable quantity
 type Amount uint64
 
 func (n Amount) Format(f fmt.State, _ rune) {
@@ -79,6 +80,7 @@ func FormatAmount(amount uint64, width int) string {
 	return s
 }
 
+// Bytes is an amount of bytes
 type Bytes uint64
 
 func (n Bytes) Format(f fmt.State, _ rune) {
@@ -95,6 +97,7 @@ func FormatBytes(n uint64, width int) string {
 	return FormatAmount(n, width-1) + "B"
 }
 
+// BPS are bytes per second, a bitrate.
 type BPS struct {
 	Bytes    Bytes
 	Duration Duration
@@ -106,22 +109,23 @@ func (n BPS) Format(f fmt.State, _ rune) {
 		w = -1
 	}
 
-	fmt.Fprint(f, FormatBPS(uint64(n.Bytes), float64(n.Duration), w))
+	fmt.Fprint(f, FormatBPS(n.Bytes, n.Duration, w))
 }
 
 // FormatBPS formats a bitrate. Minimum width is 6, defaults is 8. dt
 // must be positive.
-func FormatBPS(n uint64, sec float64, width int) string {
+func FormatBPS(n Bytes, sec Duration, width int) string {
 	if sec < 0 {
 		sec = -sec
 	}
-	return FormatBytes(uint64(float64(n)/sec), width-2) + "/s"
+	return FormatBytes(uint64(float64(n)/float64(sec)), width-2) + "/s"
 }
 
+// Duration in fractions of a second
 type Duration float64
 
 func (dt Duration) Format(f fmt.State, _ rune) {
-	fmt.Fprint(f, FormatDuration(float64(dt)))
+	fmt.Fprint(f, FormatDuration(dt))
 }
 
 const (
@@ -133,12 +137,13 @@ func divmod(a, b float64) (q, r float64) {
 	return q, a - q*b
 }
 
-// FormatDuration formats a time.Duration into a string of length 5.
+// FormatDuration formats a Duration into a string of length 5.
 //
 // TODO: make the width a parameter. Also look into being smarter;
 // this is a rather crude and brute-forceish (a.k.a. forest of ifs)
 // approach. OTOH it really is a lot of special cases...
-func FormatDuration(dt float64) string {
+func FormatDuration(dur Duration) string {
+	dt := float64(dur)
 	if dt < 60 {
 		if dt >= 9.995 {
 			return fmt.Sprintf("%.1fs", dt)

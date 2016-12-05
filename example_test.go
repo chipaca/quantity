@@ -46,7 +46,7 @@ func ExampleFormatBytes() {
 }
 
 func ExampleFormatBPS() {
-	fmt.Printf("%q\n", quantity.FormatBPS(12345, 10*time.Millisecond, -1))
+	fmt.Printf("%q\n", quantity.FormatBPS(12345, quantity.Duration((10*time.Millisecond).Seconds()), -1))
 	// Output: "1.23MB/s"
 }
 
@@ -70,7 +70,7 @@ func ExampleFormatDuration() {
 		math.MaxInt64 / 10,
 		math.MaxInt64,
 	} {
-		fmt.Printf("%q\n", quantity.FormatDuration(dt.Seconds()))
+		fmt.Printf("%q\n", quantity.FormatDuration(quantity.Duration(dt.Seconds())))
 	}
 	// Output:
 	// "3.0ns"
